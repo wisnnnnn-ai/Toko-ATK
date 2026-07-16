@@ -179,10 +179,13 @@
                     </div>
                         <div class="col-md-9">
                             <div class="row align-items-center">
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <input type="text" id="searchBarang" class="form-control form-control-sm" placeholder="Cari barang...">
                                 </div>
                                 <div class="col-md-3">
+                                    <input type="text" id="searchKode" class="form-control form-control-sm" placeholder="Cari kode...">
+                                </div>
+                                <div class="col-md-2">
                                     <select id="filterKategori" class="form-select form-select-sm">
                                         <option value="">Semua Kategori</option>
                                         @foreach($kategoris as $kategori)
@@ -197,7 +200,7 @@
                                         <option value="tersedia">Tersedia</option>
                                     </select>
                                 </div>
-                                <div class="col-md-3 d-flex gap-2">
+                                <div class="col-md-2 d-flex gap-2">
                                     <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalBarang">
                                         <i class="fas fa-plus me-1"></i> Tambah
                                     </button>
@@ -321,8 +324,8 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Kode Barang</label>
-                                <input type="text" name="kode_barang" id="inputKodeBarang" class="form-control" readonly>
+                                <label class="form-label">Kode Barang <span class="text-muted">(opsional)</span></label>
+                                <input type="text" name="kode_barang" id="inputKodeBarang" class="form-control" placeholder="Kosongkan jika ingin otomatis">
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -339,7 +342,9 @@
                                 <select name="kategori_id" class="form-select" required>
                                     <option value="">Pilih Kategori</option>
                                     @foreach($kategoris as $kategori)
-                                    <option value="{{ $kategori->id }}">{{ $kategori->nama_kategori }}</option>
+                                    <option value="{{ $kategori->id }}">
+                                        {{ strtoupper($kategori->kode_kategori ?? 'KTG' . str_pad($kategori->id, 3, '0', STR_PAD_LEFT)) }} {{ $kategori->nama_kategori }}
+                                    </option>
                                     @endforeach
                                 </select>
                             </div>
@@ -441,7 +446,7 @@
         });
     });
 
-    $('#searchBarang').on('keyup', function() {
+    $('#searchBarang, #searchKode').on('keyup', function() {
         filterTable();
     });
 
@@ -450,7 +455,8 @@
     });
 
     function filterTable() {
-        const search = $('#searchBarang').val().toLowerCase();
+        const search = $('#searchBarang').val().toLowerCase().trim();
+        const searchKode = $('#searchKode').val().toLowerCase().trim();
         const kategori = $('#filterKategori').val();
         const status = $('#filterStatus').val();
 
@@ -463,7 +469,11 @@
 
             let show = true;
 
-            if (search && !kode.includes(search) && !nama.includes(search)) {
+            if (search && !nama.includes(search)) {
+                show = false;
+            }
+
+            if (searchKode && !kode.includes(searchKode)) {
                 show = false;
             }
 

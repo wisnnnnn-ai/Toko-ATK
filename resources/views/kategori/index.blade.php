@@ -84,15 +84,21 @@
                         <div class="row align-items-center">
 
 
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <input type="text"
                                     id="searchKategori"
                                     class="form-control form-control-sm"
                                     placeholder="Cari kategori...">
                             </div>
 
+                            <div class="col-md-4">
+                                <input type="text"
+                                    id="searchKodeKategori"
+                                    class="form-control form-control-sm"
+                                    placeholder="Cari kode...">
+                            </div>
 
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <button class="btn btn-primary btn-sm"
                                         data-bs-toggle="modal"
                                         data-bs-target="#modalKategori">
@@ -166,8 +172,8 @@
             <form id="formKategori">
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">Kode Kategori</label>
-                        <input type="text" name="kode_kategori" id="inputKodeKategori" class="form-control" readonly>
+                        <label class="form-label">Kode Kategori <span class="text-muted">(opsional)</span></label>
+                        <input type="text" name="kode_kategori" id="inputKodeKategori" class="form-control" placeholder="Kosongkan jika ingin otomatis">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Nama Kategori <span class="text-danger">*</span></label>
@@ -228,23 +234,29 @@
         });
     });
 
-    $('#searchKategori').on('keyup', function () {
+    $('#searchKategori, #searchKodeKategori').on('keyup', function () {
 
-    const search = $(this).val().toLowerCase();
+    const search = $('#searchKategori').val().toLowerCase().trim();
+    const searchKode = $('#searchKodeKategori').val().toLowerCase().trim();
 
     $('#tableKategoriBody tr').each(function () {
 
         const row = $(this);
 
         const kode = row.find('td:nth-child(2)').text().toLowerCase();
-
         const nama = row.find('td:nth-child(3)').text().toLowerCase();
 
-        if (kode.includes(search) || nama.includes(search)) {
-            row.show();
-        } else {
-            row.hide();
+        let show = true;
+
+        if (search && !nama.includes(search)) {
+            show = false;
         }
+
+        if (searchKode && !kode.includes(searchKode)) {
+            show = false;
+        }
+
+        row.toggle(show);
 
     });
 

@@ -29,11 +29,16 @@ class BarangController extends Controller
             'kategori_id' => 'required|exists:kategori,id',
             'harga' => 'required|numeric|min:0',
             'stok' => 'required|integer|min:0',
+            'kode_barang' => 'nullable|string|max:50|unique:barang,kode_barang',
         ]);
 
-        $lastBarang = Barang::orderBy('id', 'desc')->first();
-        $nextNumber = $lastBarang ? (int)substr($lastBarang->kode_barang, -3) + 1 : 1;
-        $kode_barang = 'BRG' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
+        $kode_barang = trim((string) $request->input('kode_barang'));
+
+        if ($kode_barang === '') {
+            $lastBarang = Barang::orderBy('id', 'desc')->first();
+            $nextNumber = $lastBarang ? (int)substr($lastBarang->kode_barang, -3) + 1 : 1;
+            $kode_barang = 'BRG' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
+        }
 
         $barang = Barang::create([
             'kode_barang' => $kode_barang,

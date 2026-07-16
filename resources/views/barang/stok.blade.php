@@ -65,15 +65,21 @@
                         <div class="row align-items-center">
 
 
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <input type="text"
                                     id="searchStok"
                                     class="form-control form-control-sm"
                                     placeholder="Cari barang...">
                             </div>
 
-
                             <div class="col-md-3">
+                                <input type="text"
+                                    id="searchKodeStok"
+                                    class="form-control form-control-sm"
+                                    placeholder="Cari kode...">
+                            </div>
+
+                            <div class="col-md-2">
                                 <select id="filterKategoriStok" class="form-select form-select-sm">
                                     <option value="">Semua Kategori</option>
                                     @foreach($kategoris as $kategori)
@@ -92,7 +98,7 @@
                             </div>
 
 
-                            <div class="col-md-3">
+                            <div class="col-md-2">
                                 <button class="btn btn-primary btn-sm"
                                         data-bs-toggle="modal"
                                         data-bs-target="#modalRestok">
@@ -296,7 +302,8 @@
     }
 
     function filterTableStok() {
-        const search = $('#searchStok').val().toLowerCase();
+        const search = $('#searchStok').val().toLowerCase().trim();
+        const searchKode = $('#searchKodeStok').val().toLowerCase().trim();
         const kategoriFilter = $('#filterKategoriStok').val();
         const statusFilter = $('#filterStatusStok').val();
 
@@ -307,11 +314,19 @@
             const kategoriId = row.attr('data-kategori') || '';
             const stok = parseInt(row.find('td:nth-child(7)').text().trim());
 
-            let searchMatch = kode.includes(search) || nama.includes(search);
+            let searchMatch = true;
             let kategoriMatch = !kategoriFilter || kategoriId === kategoriFilter;
             let statusMatch = !statusFilter ||
                 (statusFilter === 'rendah' && stok < 10) ||
                 (statusFilter === 'tersedia' && stok >= 10);
+
+            if (search && !nama.includes(search)) {
+                searchMatch = false;
+            }
+
+            if (searchKode && !kode.includes(searchKode)) {
+                searchMatch = false;
+            }
 
             if (searchMatch && kategoriMatch && statusMatch) {
                 row.show();
@@ -321,7 +336,7 @@
         });
     }
 
-    $('#searchStok').on('keyup', function () {
+    $('#searchStok, #searchKodeStok').on('keyup', function () {
         filterTableStok();
     });
 

@@ -20,15 +20,20 @@ class KategoriController extends Controller
     {
         $request->validate([
             'nama_kategori' => 'required|unique:kategori,nama_kategori',
+            'kode_kategori' => 'nullable|string|max:50|unique:kategori,kode_kategori',
         ]);
 
-        $lastKategori = Kategori::orderBy('id', 'desc')->first();
-        $nextNumber = $lastKategori ? (int)substr($lastKategori->kode_kategori, -3) + 1 : 1;
+        $kode_kategori = trim((string) $request->input('kode_kategori'));
 
-        if ($nextNumber < 6) {
-            $nextNumber = 6;
+        if ($kode_kategori === '') {
+            $lastKategori = Kategori::orderBy('id', 'desc')->first();
+            $nextNumber = $lastKategori ? (int)substr($lastKategori->kode_kategori, -3) + 1 : 1;
+
+            if ($nextNumber < 6) {
+                $nextNumber = 6;
+            }
+            $kode_kategori = 'KTG' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
         }
-        $kode_kategori = 'KTG' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
 
         $kategori = Kategori::create([
             'kode_kategori' => $kode_kategori,

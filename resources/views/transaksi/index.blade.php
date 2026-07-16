@@ -28,25 +28,27 @@
                             Pilih Barang
                         </label>
 
-                        <select id="barangSelect"
-                                class="form-select select2">
+                        <input type="text"
+                               id="barangSelect"
+                               class="form-control"
+                               placeholder="Cari..."
+                               autocomplete="off"
+                               list="barangOptions">
 
-                            <option value="">
-                                Pilih Barang...
-                            </option>
-
+                        <datalist id="barangOptions">
                             @foreach($barangs as $barang)
-                            <option value="{{ $barang->id }}"
+                            <option value="{{ $barang->kode_barang }} - {{ $barang->nama_barang }} (Stok: {{ $barang->stok }})"
+                                    data-id="{{ $barang->id }}"
                                     data-harga="{{ $barang->harga }}"
                                     data-stok="{{ $barang->stok }}"
                                     data-satuan="{{ $barang->satuan ?? 'pcs' }}"
                                     data-kode="{{ $barang->kode_barang }}"
                                     data-nama="{{ $barang->nama_barang }}">
-                                {{ $barang->kode_barang }} - {{ $barang->nama_barang }} (Stok: {{ $barang->stok }})
                             </option>
                             @endforeach
+                        </datalist>
 
-                        </select>
+                        <small class="text-muted d-block mt-2">Cari berdasarkan kode barang atau nama barang</small>
 
                     </div>
 
@@ -580,13 +582,31 @@
     const barangData = @json($barangs);
 
     $(document).ready(function () {
+        $('#barangSelect').on('input', function () {
+            const input = $(this);
+            const value = input.val().toLowerCase();
+            const option = $('#barangOptions option').filter(function () {
+                const optionText = $(this).val().toLowerCase();
+                return optionText.includes(value);
+            }).first();
 
-        $('#barangSelect').select2({
-            placeholder: "Ketik nama barang...",
-            allowClear: true,
-            width: '100%'
+            const barangId = option.data('id') || '';
+            input.data('barang-id', barangId);
+
+            if (!barangId) {
+                clearBarangSelection();
+                return;
+            }
+
+            const harga = option.data('harga');
+            const stok = option.data('stok');
+            const satuan = option.data('satuan') || 'pcs';
+
+            $('#hargaBarang').val(harga ? parseInt(harga).toLocaleString('id-ID') : '0');
+            $('#satuanBarang').text(satuan);
+            $('#jumlahBarang').attr('max', stok);
+            $('#jumlahBarang').val(1);
         });
-
     });
 
     $.ajaxSetup({
@@ -596,17 +616,12 @@
     });
 
 
-    $('#barangSelect').on('change', function() {
-        const selected = $(this).find(':selected');
-        const harga = selected.data('harga');
-        const stok = selected.data('stok');
-        const satuan = selected.data('satuan') || 'pcs';
-
-        $('#hargaBarang').val(harga ? parseInt(harga).toLocaleString('id-ID') : '0');
-        $('#satuanBarang').text(satuan);
-        $('#jumlahBarang').attr('max', stok);
+    function clearBarangSelection() {
+        $('#hargaBarang').val('');
+        $('#satuanBarang').text('pcs');
+        $('#jumlahBarang').attr('max', '');
         $('#jumlahBarang').val(1);
-    });
+    }
 
     function renderSelectedBarangList() {
         const list = $('#selectedBarangList');
@@ -637,8 +652,7 @@
     }
 
     function tambahKeranjang() {
-        const select = document.getElementById('barangSelect');
-        const barangId = select.value;
+        const barangId = $('#barangSelect').data('barang-id') || '';
         const jumlah = parseInt($('#jumlahBarang').val());
 
         if (!barangId) {
@@ -680,9 +694,8 @@
         }
 
         renderKeranjang();
-        select.value = '';
-        $('#hargaBarang').val('');
-        $('#jumlahBarang').val(1);
+        $('#barangSelect').val('').data('barang-id', '');
+        clearBarangSelection();
 
 
         setTimeout(() => {
