@@ -3,6 +3,12 @@
 @section('title', 'Data Barang')
 @section('page-title', 'Data Barang')
 
+@section('head')
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('img/logo%20as%202.png') }}">
+    <link rel="shortcut icon" type="image/png" sizes="32x32" href="{{ asset('img/logo%20as%202.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('img/logo%20as%202.png') }}">
+@endsection
+
 @section('main-content')
 
 <style>

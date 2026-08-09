@@ -1,6 +1,11 @@
 @extends('layout.app')
 
  @section('content')
+ <head>
+     <link rel="icon" type="image/png" href="{{ asset('img/logo%20as%202.png') }}">
+     <link rel="shortcut icon" type="image/png" href="{{ asset('img/logo%20as%202.png') }}">
+     <link rel="apple-touch-icon" href="{{ asset('img/logo%20as%202.png') }}">
+ </head>
  <style>
      .login-page {
          background: url('{{ asset('img/bg login.png') }}') center/cover no-repeat !important;
